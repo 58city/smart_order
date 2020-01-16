@@ -8,8 +8,7 @@
         </a>	
       </span>
     </div>
-
-    <el-menu default-active="/" background-color="transparent" text-color="#fff" active-text-color="#ffd04b" :router="true" unique-opened>
+    <el-menu :default-active="$route.path" background-color="transparent" text-color="#fff" active-text-color="#ffd04b" :router="true" unique-opened>
       <el-menu-item index="/">
         <i class="el-icon-house"></i>
         <span slot="title">控制面板</span>
@@ -41,9 +40,13 @@
 </template>
 
 <script>
-  import _ from "lodash"
   export default {
     name:'LayoutNavMenu',
+    data() {
+      return {
+        defaultPath:''
+      }
+    },
     computed: {
       nickname(){
         return this.$store.state.nickname
