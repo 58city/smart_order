@@ -1,0 +1,81 @@
+@import "./normalize.css";
+@import "./animate.css";
+@import "./font-awesome.min.css";
+
+/* :root ->获取根元素 html */
+:root {
+  /* 定义 css 变量 */
+  --color-text: #666;
+  --color-text-highlight: #c0c4cc;
+  --color-border: #e3e3e3;
+  --color-background-white: #fff;
+  --color-background-grey: #f5f5f5;
+  --font-size-16: 16px;
+  --font-size-14: 14px;
+  --font-size-12: 12px;
+  --line-height: 1.5;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,body{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:var(--font-size-14);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--color-text);
+  width: 100vm;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}
+a:focus {
+  outline: none;
+}
+textarea {
+  resize: vertical;
+}
+canvas {
+  display: block;
+}
+
+.clear-fix::after {
+  clear: both;
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.clear-fix {
+  zoom: 1;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-text-overflow: ellipsis;
+}
