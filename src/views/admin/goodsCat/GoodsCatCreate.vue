@@ -58,7 +58,7 @@
         }) 
       },
       getParentCat(){
-        get_goodscat({type:2}).then(res=>{
+        get_goodscat({type:2,deleted:false}).then(res=>{
           res.data.list.unshift({_id:this.topId,name:'顶级分类',level:-1,pid:this.topId})
           this.parentCatList=res.data.list
         }).catch(err=>{
