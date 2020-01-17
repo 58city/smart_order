@@ -37,6 +37,7 @@ const GoodsCat = ()=>import('views/admin/goodsCat/GoodsCat')
 const GoodsCatList = ()=>import('views/admin/goodsCat/GoodsCatList')
 const GoodsCatCreate = ()=>import('views/admin/goodsCat/GoodsCatCreate')
 const GoodsCatUpdate = ()=>import('views/admin/goodsCat/GoodsCatUpdate')
+const GoodsAttr = ()=>import('views/admin/goodsAttr/Attribute')
 const Goods = ()=>import('views/admin/goods/Goods')
 const GoodsList = ()=>import('views/admin/goods/GoodsList')
 const GoodsCreate = ()=>import('views/admin/goods/GoodsCreate')
@@ -130,6 +131,10 @@ const routes = [
             path: 'update/:id',name:'goodscat-update',component:GoodsCatUpdate,meta:{title:'修改分类',category:'goods_cat',action:'edit'}
           }
         ]
+      },
+      {
+        path: 'goodsattr',name:'goodsattr',component: GoodsAttr,
+        meta:{title:'分类参数',category:'goods_attr',action:'read'}
       },
       {
         path: 'goods',component: Goods,meta:{title:'商品管理'},

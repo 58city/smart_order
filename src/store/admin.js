@@ -18,6 +18,7 @@ const store=new Vuex.Store({
       content_cat: { read: false, edit: false },
       content_ls: { read: false, edit: false },
       goods_cat: { read: false, edit: false },
+      goods_attr: { read: false, edit: false },
       goods_ls: { read: false, edit: false },
       order: { read: false, edit: false },
       users: { read: false, edit: false },
@@ -69,12 +70,14 @@ const store=new Vuex.Store({
           case 100501: state.auths.content_ls.edit  = true; break;
           case 100600: state.auths.goods_cat.read  = true; break;
           case 100601: state.auths.goods_cat.edit  = true; break;
-          case 100700: state.auths.goods_ls.read  = true; break;
-          case 100701: state.auths.goods_ls.edit  = true; break;
-          case 100800: state.auths.order.read  = true; break;
-          case 100801: state.auths.order.edit  = true; break;
-          case 100900: state.auths.users.read  = true; break;
-          case 100901: state.auths.users.edit  = true; break;
+          case 100700: state.auths.goods_attr.read  = true; break;
+          case 100701: state.auths.goods_attr.edit  = true; break;
+          case 100800: state.auths.goods_ls.read  = true; break;
+          case 100801: state.auths.goods_ls.edit  = true; break;
+          case 100900: state.auths.order.read  = true; break;
+          case 100901: state.auths.order.edit  = true; break;
+          case 100110: state.auths.users.read  = true; break;
+          case 100111: state.auths.users.edit  = true; break;
         }
       })
       return state.auths
