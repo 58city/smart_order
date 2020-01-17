@@ -36,21 +36,12 @@ var toTree = function(data, type) {
   return val;
 };
 
-var updateChildrenLevel = async function(data, level) {
+var changeTreeLevel = function(data, level) {
   for (var idx in data) {
-    try {
-      await goodscatModel.update(
-        { _id: data[idx]._id },
-        { level: level },
-        { runValidators: true }
-      );
-      if (data[idx].children) {
-        updateChildrenLevel(data[idx].children, level + 1);
-      }
-    } catch (err) {
-      err.type = "database";
-      return err;
+    if (data[idx].children && data[idx].children.length > 0) {
+      changeTreeLevel(data[idx].children, level + 1);
     }
+    data[idx].level = level;
   }
 };
 
@@ -220,7 +211,7 @@ exports.update = function(options, callback) {
   var data = options.data;
   var _id = options._id;
 
-  async.series(
+  async.auto(
     {
       updateSelf: function(cb) {
         goodscatModel
@@ -233,33 +224,57 @@ exports.update = function(options, callback) {
             cb(null);
           });
       },
-      findChildren: function(cb) {
-        goodscatModel
-          .find()
-          .lean()
-          .exec(function(err, goodscats) {
-            if (err) {
+      findChildren: [
+        "updateSelf",
+        function(cb) {
+          goodscatModel
+            .find()
+            .lean()
+            .exec(function(err, goodscats) {
+              if (err) {
+                err.type = "database";
+                return cb(err);
+              }
+              var children = getChildren(
+                _id,
+                JSON.parse(JSON.stringify(goodscats)),
+                "document"
+              );
+              cb(null, toTree(children, 6));
+            });
+        }
+      ],
+      updateChildrenLevel: [
+        "findChildren",
+        async function(cb, result) {
+          if (typeof options.data.level != "number") {
+            return cb(null);
+          }
+          changeTreeLevel(result.findChildren, options.data.level + 1);
+          var stark = [];
+          stark = stark.concat(result.findChildren);
+          while (stark.length) {
+            var temp = stark.shift();
+            try {
+              await goodscatModel.update(
+                { _id: temp._id },
+                { level: temp.level },
+                { runValidators: true }
+              );
+              if (temp.children) {
+                stark = temp.children.concat(stark);
+              }
+            } catch (err) {
               err.type = "database";
               return cb(err);
             }
-            var children = getChildren(
-              _id,
-              JSON.parse(JSON.stringify(goodscats)),
-              "document"
-            );
-            cb(null, children);
-          });
-      }
+          }
+          cb(null);
+        }
+      ]
     },
-    function(err, result) {
-      if (err) {
-        return callback(err);
-      }
-      if (typeof options.data.level == "number") {
-        var tree = toTree(result.findChildren, 6);
-        updateChildrenLevel(tree, options.data.level + 1);
-      }
-      callback();
+    function(err) {
+      callback(err);
     }
   );
 };
