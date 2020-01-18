@@ -8,10 +8,6 @@
         </a>	
       </span>
     </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> attributes
     <el-menu :default-active="$route.path" background-color="transparent" text-color="#fff" active-text-color="#ffd04b" :router="true" unique-opened>
       <el-menu-item index="/">
         <i class="el-icon-house"></i>
