@@ -56,12 +56,21 @@ module.exports = {
 			}
 		},
 		'/goodscat':{
-			get:[100600,'goodscat.tree'],
+			get:[100600,100700,'goodscat.tree'],
 			post:[100601,'goodscat.create'],
 			'/:_id':{
 				get:[100600,'goodscat.one'],
 				put:[100601,'goodscat.update'],
 				delete:[100601,'goodscat.remove']
+			}
+		},
+		'/goodsattr':{
+			get:[100700,'goodsattr.list'],
+			post:[100701,'goodsattr.create'],
+			'/:_id':{
+				get:[100700,'goodsattr.one'],
+				put:[100701,'goodsattr.update'],
+				delete:[100701,'goodsattr.remove']
 			}
 		}
 	},

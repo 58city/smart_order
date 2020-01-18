@@ -58,43 +58,47 @@ exports.tree = function(options, callback) {
   if (options.currentPage) currentPage = parseInt(options.currentPage);
   if (options.pageSize) pageSize = parseInt(options.pageSize);
 
-  async.waterfall(
-    [
-      function(cb) {
+  async.auto(
+    {
+      getAllCats: function(cb) {
         goodscatModel
           .find(query)
           .sort("-date")
           .select("name pid level deleted")
           .lean()
-          .exec(function(err, goodscats) {
+          .exec(function(err, cats) {
             if (err) {
               err.type = "database";
               return cb(err);
             }
-            cb(null, toTree(goodscats, type));
+            cb(null, toTree(cats, type));
           });
-      }
-    ],
-    function(err, goodscatTree) {
+      },
+      getJsonData: [
+        "getAllCats",
+        function(cb, result) {
+          if (!options.currentPage || !options.pageSize) {
+            return cb(null, {
+              list: result.getAllCats
+            });
+          }
+          var list = _.take(
+            _.drop(result.getAllCats, (currentPage - 1) * pageSize),
+            pageSize
+          );
+          callback(null, {
+            list: list,
+            total: result.getAllCats.length,
+            pages: Math.ceil(result.getAllCats.length / pageSize),
+            currentPage: currentPage,
+            pageSize: pageSize
+          });
+        }
+      ]
+    },
+    function(err, result) {
       if (err) return callback(err);
-
-      if (!options.currentPage || !options.pageSize) {
-        return callback(err, {
-          list: goodscatTree
-        });
-      }
-
-      var result = _.take(
-        _.drop(goodscatTree, (currentPage - 1) * pageSize),
-        pageSize
-      );
-      callback(err, {
-        list: result,
-        total: goodscatTree.length,
-        pages: Math.ceil(goodscatTree.length / pageSize),
-        currentPage: currentPage,
-        pageSize: pageSize
-      });
+      callback(null, result.getJsonData);
     }
   );
 };
