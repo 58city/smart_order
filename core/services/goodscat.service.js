@@ -36,21 +36,12 @@ var toTree = function(data, type) {
   return val;
 };
 
-var updateChildrenLevel = async function(data, level) {
+var changeTreeLevel = function(data, level) {
   for (var idx in data) {
-    try {
-      await goodscatModel.update(
-        { _id: data[idx]._id },
-        { level: level },
-        { runValidators: true }
-      );
-      if (data[idx].children) {
-        updateChildrenLevel(data[idx].children, level + 1);
-      }
-    } catch (err) {
-      err.type = "database";
-      return err;
+    if (data[idx].children && data[idx].children.length > 0) {
+      changeTreeLevel(data[idx].children, level + 1);
     }
+    data[idx].level = level;
   }
 };
 
@@ -67,43 +58,47 @@ exports.tree = function(options, callback) {
   if (options.currentPage) currentPage = parseInt(options.currentPage);
   if (options.pageSize) pageSize = parseInt(options.pageSize);
 
-  async.waterfall(
-    [
-      function(cb) {
+  async.auto(
+    {
+      getAllCats: function(cb) {
         goodscatModel
           .find(query)
           .sort("-date")
           .select("name pid level deleted")
           .lean()
-          .exec(function(err, goodscats) {
+          .exec(function(err, cats) {
             if (err) {
               err.type = "database";
               return cb(err);
             }
-            cb(null, toTree(goodscats, type));
+            cb(null, toTree(cats, type));
           });
-      }
-    ],
-    function(err, goodscatTree) {
+      },
+      getJsonData: [
+        "getAllCats",
+        function(cb, result) {
+          if (!options.currentPage || !options.pageSize) {
+            return cb(null, {
+              list: result.getAllCats
+            });
+          }
+          var list = _.take(
+            _.drop(result.getAllCats, (currentPage - 1) * pageSize),
+            pageSize
+          );
+          callback(null, {
+            list: list,
+            total: result.getAllCats.length,
+            pages: Math.ceil(result.getAllCats.length / pageSize),
+            currentPage: currentPage,
+            pageSize: pageSize
+          });
+        }
+      ]
+    },
+    function(err, result) {
       if (err) return callback(err);
-
-      if (!options.currentPage || !options.pageSize) {
-        return callback(err, {
-          list: goodscatTree
-        });
-      }
-
-      var result = _.take(
-        _.drop(goodscatTree, (currentPage - 1) * pageSize),
-        pageSize
-      );
-      callback(err, {
-        list: result,
-        total: goodscatTree.length,
-        pages: Math.ceil(goodscatTree.length / pageSize),
-        currentPage: currentPage,
-        pageSize: pageSize
-      });
+      callback(null, result.getJsonData);
     }
   );
 };
@@ -220,7 +215,7 @@ exports.update = function(options, callback) {
   var data = options.data;
   var _id = options._id;
 
-  async.series(
+  async.auto(
     {
       updateSelf: function(cb) {
         goodscatModel
@@ -233,33 +228,57 @@ exports.update = function(options, callback) {
             cb(null);
           });
       },
-      findChildren: function(cb) {
-        goodscatModel
-          .find()
-          .lean()
-          .exec(function(err, goodscats) {
-            if (err) {
+      findChildren: [
+        "updateSelf",
+        function(cb) {
+          goodscatModel
+            .find()
+            .lean()
+            .exec(function(err, goodscats) {
+              if (err) {
+                err.type = "database";
+                return cb(err);
+              }
+              var children = getChildren(
+                _id,
+                JSON.parse(JSON.stringify(goodscats)),
+                "document"
+              );
+              cb(null, toTree(children, 6));
+            });
+        }
+      ],
+      updateChildrenLevel: [
+        "findChildren",
+        async function(cb, result) {
+          if (typeof options.data.level != "number") {
+            return cb(null);
+          }
+          changeTreeLevel(result.findChildren, options.data.level + 1);
+          var stark = [];
+          stark = stark.concat(result.findChildren);
+          while (stark.length) {
+            var temp = stark.shift();
+            try {
+              await goodscatModel.update(
+                { _id: temp._id },
+                { level: temp.level },
+                { runValidators: true }
+              );
+              if (temp.children) {
+                stark = temp.children.concat(stark);
+              }
+            } catch (err) {
               err.type = "database";
               return cb(err);
             }
-            var children = getChildren(
-              _id,
-              JSON.parse(JSON.stringify(goodscats)),
-              "document"
-            );
-            cb(null, children);
-          });
-      }
+          }
+          cb(null);
+        }
+      ]
     },
-    function(err, result) {
-      if (err) {
-        return callback(err);
-      }
-      if (typeof options.data.level == "number") {
-        var tree = toTree(result.findChildren, 6);
-        updateChildrenLevel(tree, options.data.level + 1);
-      }
-      callback();
+    function(err) {
+      callback(err);
     }
   );
 };

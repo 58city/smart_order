@@ -8,6 +8,10 @@
         </a>	
       </span>
     </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> attributes
     <el-menu :default-active="$route.path" background-color="transparent" text-color="#fff" active-text-color="#ffd04b" :router="true" unique-opened>
       <el-menu-item index="/">
         <i class="el-icon-house"></i>
@@ -21,7 +25,8 @@
       <el-submenu index="3" v-if="auths.goods_cat.read||auths.goods_ls.read">
         <template slot="title"><i class="el-icon-shopping-cart-full"></i><span>商品管理</span></template>
         <el-menu-item index="/goodscat" v-if="auths.goods_cat.read" class="bl">商品分类</el-menu-item>
-        <el-menu-item index="/goods" v-if="auths.goods_ls.read" class="bl">商品管理</el-menu-item>
+        <el-menu-item index="/goodsattr" v-if="auths.goods_cat.read" class="bl">分类参数</el-menu-item>
+        <el-menu-item index="/goods" v-if="auths.goods_ls.read" class="bl">商品列表</el-menu-item>
       </el-submenu>
       <el-menu-item index="/order" v-if="auths.order.read">
         <i class="el-icon-goods"></i><span slot="title">订单管理</span>

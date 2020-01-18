@@ -104,8 +104,8 @@ module.exports = [
 		]
 	},
 	{
-		name: 'goods_ls',
-		description: '商品列表',
+		name: 'goods_attr',
+		description: '分类参数',
 		authorities: [
 			{
 				name: 'read',
@@ -120,8 +120,8 @@ module.exports = [
 		]
 	},
 	{
-		name: 'order',
-		description: '订单管理',
+		name: 'goods_ls',
+		description: '商品列表',
 		authorities: [
 			{
 				name: 'read',
@@ -136,8 +136,8 @@ module.exports = [
 		]
 	},
 	{
-		name: 'users',
-		description: '用户管理',
+		name: 'order',
+		description: '订单管理',
 		authorities: [
 			{
 				name: 'read',
@@ -148,6 +148,22 @@ module.exports = [
 				name: 'edit',
 				description: '编辑',
 				code: 100901
+			}
+		]
+	},
+	{
+		name: 'users',
+		description: '用户管理',
+		authorities: [
+			{
+				name: 'read',
+				description: '查看',
+				code: 100110
+			},
+			{
+				name: 'edit',
+				description: '编辑',
+				code: 100111
 			}
 		]
 	}
