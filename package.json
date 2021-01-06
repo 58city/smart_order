@@ -10,7 +10,7 @@
   "main": "bin/www",
   "dependencies": {
     "async": "^1.5.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "better-scroll": "^1.15.2",
     "bluebird": "^3.4.6",
     "body-parser": "^1.14.2",
